@@ -66,14 +66,16 @@ Compatibility
 This should compile and run on most systems conforming to SUSv2 or
 better and including a XSI-curses compliant curses implementation.
 
+![Mac OS X 10.10.4](screenshots/macosx-1010.png)
+
 Caveats
 -------
 
 I haven't tested this will all terminal emulators, but it's working quite
-nicely with xterm and tmux. If the grid doesn't draw correctly (e.g. it
-appears as a series of k, l, m, q or x chars) then it's likely that your
-terminal emulator doesn't support the alternate character set normally
-used for box drawing.
+nicely with xterm, tmux, and the Mac OS X Terminal. If the grid doesn't
+draw correctly (e.g. it appears as a series of k, l, m, q or x chars)
+then it's likely that your terminal emulator doesn't support the
+alternate character set normally used for box drawing.
 
 If you're running with ncurses and a UTF-8 locale, you can try
 exporting this variable to your environment prior to running ``tp2``:
