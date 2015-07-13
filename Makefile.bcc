@@ -1,0 +1,42 @@
+#
+# tp2 - Makefile for Borland C 3.x
+# Copyright (C) 2015 Tim Hentenaar.
+#
+# This code is licenced under the Simplified BSD License.
+# See the LICENSE file for details.
+#
+# To build this:
+#   1. Build pdcurses
+#   2. Set the PDCURSES_DIR variable to point to your pdcurses source.
+#   3. make -f Makefile.bcc all
+#   4. Run tp2.exe
+
+# Set this to the directory where PDCurses was built
+PDCURSES_DIR=C:\PDCURSES
+
+###############################################
+# CFLAGS:
+#
+# -O1 - Optimize for size
+# -G  - Generate for speed
+# -j1 - Stop after one error
+# -g1 - Stop after one warning
+# -f- - No floating point instructions
+# -d  - Merge duplicate strings
+# -ml - Large memory model
+#
+################################################
+CFLAGS = -O1 -G -j1 -g1 -f- -d -ml -Isrc -I$(PDCURSES_DIR)
+
+all: tp2.exe
+
+tp2.exe: src\game.obj src\ui.obj src\main.obj
+	$(CC) -ml -e$@ $** $(PDCURSES_DIR)\dos\pdcurses.lib
+
+clean:
+	- del src\*.obj
+	- del tp2.exe
+
+.c.obj:
+	$(CC) $(CFLAGS) -nsrc -c $<
+

@@ -66,7 +66,11 @@ Compatibility
 This should compile and run on most systems conforming to SUSv2 or
 better and including a XSI-curses compliant curses implementation.
 
+It works on Linux, Mac OS X, and it even works on DOS
+(with [pdcurses](http://pdcurses.sourceforge.net).)
+
 ![Mac OS X 10.10.4](screenshots/macosx-1010.png)
+![DOS](screenshots/pdcurses-dos.png)
 
 Caveats
 -------

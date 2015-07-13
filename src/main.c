@@ -9,30 +9,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <signal.h>
 #include <curses.h>
-#include <term.h>
 
 #include "ui.h"
 #include "game.h"
 
-/* Buffer for termcap setting strings */
-static char buf[128];
-
-/* Signal flags */
-static volatile sig_atomic_t got_signal = 0;
-static volatile sig_atomic_t got_winch = 0;
-
-static void sighandler(int sig)
-{
-#ifdef SIGWINCH
-	if (sig == SIGWINCH) got_winch = 1;
-	else got_signal = 1;
-#else
-	got_signal = 1;
+#ifndef PDCURSES
+#include "terminal.h"
 #endif
-}
+
+/* Signal flags (see terminal.c) */
+volatile sig_atomic_t got_signal = 0;
+volatile sig_atomic_t got_winch = 0;
 
 /**
  * Show usage information.
@@ -50,9 +39,7 @@ static void usage(char *argv0)
 
 int main(int argc, char *argv[])
 {
-	struct sigaction sa;
 	const char *err = NULL;
-	char *tmp, *bufp = buf;
 	int i, retval, key;
 
 	/* Handle args */
@@ -81,35 +68,15 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	init_game_state();
-	memset(buf, 0, sizeof(buf));
-	if (!isatty(STDOUT_FILENO))
-		goto not_a_tty;
-
-	tmp = getenv("TERM");
-	if (!tmp) goto term_not_set;
-
-	/* SUSv2+ tgetent() ignores the buffer parameter. */
-	retval = tgetent(NULL, tmp);
-	if (retval <= 0)
-		goto termcap_not_found;
-
-	/* Switch to the alternate screen (if supported.) */
-	tmp = tgetstr("ti", &bufp);
-	if (tmp) putp(tmp);
-
-	/* Setup signal handling */
-	memset(&sa, 0, sizeof(struct sigaction));
-	sigemptyset(&sa.sa_mask);
-	sa.sa_handler = sighandler;
-	sigaction(SIGTERM, &sa, NULL);
-	sigaction(SIGINT, &sa, NULL);
-#ifdef SIGWINCH
-	sigaction(SIGWINCH, &sa, NULL);
+#ifndef PDCURSES
+	err = term_init();
+	if (err) goto err;
 #endif
 
-	/* Render the UI and feed input into the game logic. */
+	init_game_state();
 	ui_init();
+
+	/* Render the UI and feed input into the game logic. */
 	while (!got_signal) {
 		if (got_winch) {
 			got_winch = 0;
@@ -119,6 +86,12 @@ int main(int argc, char *argv[])
 		ui_render_game_state();
 		key = getch();
 		if (key == ERR) continue;
+
+#ifdef PDCURSES
+		/* PDCurses sends this on Ctrl + C. */
+		if (key == 3) got_signal = 1;
+#endif
+
 #ifdef KEY_RESIZE
 		if (key == KEY_RESIZE)
 			ui_window_size_changed();
@@ -129,10 +102,9 @@ int main(int argc, char *argv[])
 	}
 	ui_uninit();
 
-	/* Restore the screen (if supported.) */
-	bufp = buf;
-	tmp = tgetstr("te", &bufp);
-	if (tmp) putp(tmp);
+#ifndef PDCURSES
+	term_uninit();
+#endif
 
 err:
 	/* If we have an error message, print it */
@@ -141,16 +113,4 @@ err:
 		retval = EXIT_FAILURE;
 	} else retval = EXIT_SUCCESS;
 	return retval;
-
-not_a_tty:
-	err = "stdout is not a tty";
-	goto err;
-
-term_not_set:
-	err = "TERM is not set";
-	goto err;
-
-termcap_not_found:
-	err = "termcap entry not found";
-	goto err;
 }
