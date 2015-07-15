@@ -66,11 +66,12 @@ Compatibility
 This should compile and run on most systems conforming to SUSv2 or
 better and including a XSI-curses compliant curses implementation.
 
-It works on Linux, Mac OS X, and it even works on DOS
+It works on Linux, Mac OS X, SCO OpenServer (xpg4 curses), and even DOS
 (with [pdcurses](http://pdcurses.sourceforge.net).)
 
 ![Mac OS X 10.10.4](screenshots/macosx-1010.png)
 ![DOS](screenshots/pdcurses-dos.png)
+![SCO OpenServer 5](screenshots/sco5.png)
 
 Caveats
 -------
@@ -80,6 +81,8 @@ nicely with xterm, tmux, and the Mac OS X Terminal. If the grid doesn't
 draw correctly (e.g. it appears as a series of k, l, m, q or x chars)
 then it's likely that your terminal emulator doesn't support the
 alternate character set normally used for box drawing.
+
+For ``scoterm``, try setting ``TERM=dtterm`` .
 
 If you're running with ncurses and a UTF-8 locale, you can try
 exporting this variable to your environment prior to running ``tp2``:

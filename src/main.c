@@ -87,10 +87,8 @@ int main(int argc, char *argv[])
 		key = getch();
 		if (key == ERR) continue;
 
-#ifdef PDCURSES
-		/* PDCurses sends this on Ctrl + C. */
+		/* PDCurses / xpg4 curses send this on Ctrl + C. */
 		if (key == 3) got_signal = 1;
-#endif
 
 #ifdef KEY_RESIZE
 		if (key == KEY_RESIZE)
