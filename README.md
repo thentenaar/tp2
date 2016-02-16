@@ -34,7 +34,7 @@ in reached.
 Installation
 ------------
 
-``tp2`` can be installed with the usual ``make`` followed-by
+``tp2`` can be installed with the usual ``./configure``, ``make``, and
 ``make install`` routine.
 
 Color Support

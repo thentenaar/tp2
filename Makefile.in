@@ -1,0 +1,75 @@
+#
+# tp2 - Tiled Powers of 2
+# Copyright (C) 2015 Tim Hentenaar.
+#
+# This code is licenced under the Simplified BSD License.
+# See the LICENSE file for details.
+
+# Standard path variables
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+datarootdir=@datarootdir@
+datadir=@datadir@
+bindir=@bindir@
+mandir=@mandir@
+
+# Tools
+CC=@CC@
+MKDIR_P=@MKDIR_P@
+INSTALL=@INSTALL@
+INDENT=@INDENT@
+
+# Flags
+CPPFLAGS=@CPPFLAGS@
+LDFLAGS=@LDFLAGS@
+CFLAGS=@CFLAGS@
+LIBS=@LIBS@
+
+# Gather the sources
+SRCS := $(wildcard src/*.c)
+HS := $(wildcard src/*.h)
+
+# .c to .o
+OBJS = ${SRCS:.c=.o}
+
+#
+# Targets
+#
+
+all: tp2
+
+tp2: $(OBJS)
+	@echo "  LD $@"
+	@$(CC) -o $@ $^ $(LDFLAGS) $(LIBS)
+
+install: tp2
+	@echo " INSTALL tp2 -> $(bindir)/tp2"
+	@$(MKDIR_P) $(bindir)
+	@$(INSTALL) -s -m0755 tp2 $(bindir)/tp2
+
+uninstall:
+	@echo " UNINSTALL tp2"
+	@$(RM) -f $(bindir)/tp2
+
+clean:
+	@$(RM) -f $(OBJS) tp2
+
+distclean: clean
+	@$(RM) Makefile config.status config.log
+	@$(RM) -r autom4te.cache
+
+indent:
+ifneq (,$(INDENT))
+	@echo "  INDENT src/*.[ch]"
+	@VERSION_CONTROL=none $(INDENT) $(SRCS) $(HS)
+else
+	@echo "'indent' not found."
+endif
+
+.c.o:
+	@echo "  CC $@"
+	@$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+.SUFFIXES: .c .o
+.PHONY: all install uninstall clean indent
+
