@@ -78,22 +78,34 @@ int main(int argc, char *argv[])
 
 	/* Render the UI and feed input into the game logic. */
 	while (!got_signal) {
+#ifdef PDCURSES
+		if (!got_winch && is_termresized())
+			++got_winch;
+#endif
+
 		if (got_winch) {
 			got_winch = 0;
+
+#ifdef PDCURSES
+			resize_term(0, 0);
+			erase();
+#endif
 			ui_window_size_changed();
 		}
 
 		ui_render_game_state();
-		key = getch();
-		if (key == ERR) continue;
+		if ((key = getch()) == ERR) continue;
 
-		/* PDCurses / xpg4 curses send this on Ctrl + C. */
+		/* PDCurses / xpg4 curses send ETX on Ctrl + C. */
 		if (key == 3) got_signal = 1;
 
 #ifdef KEY_RESIZE
-		if (key == KEY_RESIZE)
-			ui_window_size_changed();
+		if (key == KEY_RESIZE) {
+			got_winch = 1;
+			continue;
+		}
 #endif
+
 		/* Allow the user to restart when 'r' is pressed. */
 		if (!game_state) game_handle_key(key);
 		else if (key == 'r') init_game_state();

@@ -342,7 +342,9 @@ void ui_init(void)
 void ui_window_size_changed(void)
 {
 	screen_too_small = 0;
+#ifndef PDCURSES
 	endwin();
+#endif
 	clear();
 	refresh();
 
