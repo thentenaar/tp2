@@ -1,0 +1,6 @@
+*.o
+*.sw?
+autom4te.cache
+config.*
+Makefile
+tp2
