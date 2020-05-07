@@ -35,6 +35,7 @@ static void sighandler(int sig)
 	if (sig == SIGWINCH) got_winch = 1;
 	else got_signal = 1;
 #else
+	(void)sig;
 	got_signal = 1;
 #endif
 }
